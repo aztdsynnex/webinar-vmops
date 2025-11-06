@@ -1,0 +1,106 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: vm-hello-web-1
+  namespace: webinar-vmops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  running: true
+  dataVolumeTemplates:
+    - metadata:
+        name: vm-hello-web-1-volume
+      spec:
+        sourceRef:
+          kind: DataSource
+          name: fedora
+          namespace: openshift-virtualization-os-images
+        storage:
+          resources: {}   # use DataSource defaults; set requests if needed
+  template:
+    metadata:
+      labels:
+        app: hello-vm-web
+    spec:
+      domain:
+        cpu:
+          cores: 1
+        resources:
+          requests:
+            memory: 2Gi
+        devices:
+          autoattachPodInterface: false
+          disks:
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+            - name: rootdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
+      # Simple health checks against the in-guest web server
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 80
+          scheme: HTTP
+        initialDelaySeconds: 60
+        periodSeconds: 5
+        timeoutSeconds: 3
+        failureThreshold: 6
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 80
+          scheme: HTTP
+        initialDelaySeconds: 90
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: vm-hello-web-1-volume
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              chpasswd: { expire: false }
+              user: cloud-user
+              password: "changeme123!"   # rotate later
+              write_files:
+                - path: /opt/hello/index.html
+                  permissions: '0644'
+                  content: |
+                    <!doctype html>
+                    <html>
+                      <head><meta charset="utf-8"><title>Hello</title></head>
+                      <body style="font-family: system-ui, sans-serif; margin: 3rem;">
+                        <h1>Hello from a VM on OpenShift 👋</h1>
+                        <p>VS Code → GitHub → Argo CD → OpenShift</p>
+                      </body>
+                    </html>
+                - path: /etc/systemd/system/hello-web.service
+                  permissions: '0644'
+                  content: |
+                    [Unit]
+                    Description=Simple Hello Web (python http.server)
+                    After=network-online.target
+                    Wants=network-online.target
+
+                    [Service]
+                    WorkingDirectory=/opt/hello
+                    ExecStart=/usr/bin/python3 -m http.server 80
+                    Restart=always
+
+                    [Install]
+                    WantedBy=multi-user.target
+              runcmd:
+                - mkdir -p /opt/hello
+                - systemctl daemon-reload
+                - systemctl enable --now hello-web.service
