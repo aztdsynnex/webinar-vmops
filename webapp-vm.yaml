@@ -4,34 +4,32 @@ metadata:
   name: webinar-vm
   namespace: webinar-vmops
   annotations:
+    description: Fedora Hello-World Demo VM
     argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app: webinar-vm
+    os.template.kubevirt.io/fedora: 'true'
 spec:
   runStrategy: Always
-  dataVolumeTemplates:
-    - metadata:
-        name: webinar-vm-volume
-      spec:
-        sourceRef:
-          kind: DataSource
-          name: fedora
-          namespace: openshift-virtualization-os-images
-        storage:
-          resources:
-            requests:
-              storage: 30Gi
-  instancetype:
-    name: cx1.large
-  preference:
-    name: fedora
   template:
     metadata:
+      annotations:
+        vm.kubevirt.io/flavor: small
+        vm.kubevirt.io/os: fedora
+        vm.kubevirt.io/workload: server
       labels:
         app: webinar-vm
-        network.kubevirt.io/headlessService: headless
+        kubevirt.io/domain: webinar-vm
+        kubevirt.io/size: small
     spec:
       domain:
+        cpu:
+          cores: 1
+          sockets: 1
+          threads: 1
+        memory:
+          guest: 2Gi
         devices:
-          autoattachPodInterface: false
           disks:
             - name: rootdisk
               disk:
@@ -43,49 +41,25 @@ spec:
               bootOrder: 2
           interfaces:
             - name: default
-              masquerade: {}
-            - name: nic204                 # ← ENTFERNEN, falls NAD nicht existiert
               model: virtio
-              state: up
-              bridge: {}
+              masquerade: {}
+          networkInterfaceMultiqueue: true
+          rng: {}
       networks:
         - name: default
           pod: {}
-        - name: nic204                     # ← ENTFERNEN, falls NAD nicht existiert
-          multus:
-            networkName: default/nad204
-      subdomain: headless
-      # Healthchecks gegen den in-guest Webserver
-      readinessProbe:
-        httpGet:
-          path: /
-          port: 80
-          scheme: HTTP
-        initialDelaySeconds: 60
-        periodSeconds: 5
-        timeoutSeconds: 3
-        failureThreshold: 6
-      livenessProbe:
-        httpGet:
-          path: /
-          port: 80
-          scheme: HTTP
-        initialDelaySeconds: 90
-        periodSeconds: 10
-        timeoutSeconds: 5
-        failureThreshold: 3
+      terminationGracePeriodSeconds: 180
       volumes:
         - name: rootdisk
-          dataVolume:
-            name: webinar-vm-volume
+          containerDisk:
+            image: quay.io/containerdisks/fedora
         - name: cloudinitdisk
           cloudInitNoCloud:
-            userData: |
+            userData: |-
               #cloud-config
-              chpasswd:
-                expire: false
               user: artzoul
               password: redhat123
+              chpasswd: { expire: False }
               write_files:
                 - path: /opt/hello/index.html
                   permissions: '0644'
@@ -105,10 +79,12 @@ spec:
                     Description=Simple Hello Web (python http.server)
                     After=network-online.target
                     Wants=network-online.target
+
                     [Service]
                     WorkingDirectory=/opt/hello
                     ExecStart=/usr/bin/python3 -m http.server 80
                     Restart=always
+
                     [Install]
                     WantedBy=multi-user.target
               runcmd:
