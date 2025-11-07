@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  running: true
+  runStrategy: Always
   dataVolumeTemplates:
     - metadata:
         name: webinar-vm-volume
@@ -16,34 +16,46 @@ spec:
           name: fedora
           namespace: openshift-virtualization-os-images
         storage:
-          resources: {}   # use DataSource defaults; set requests if needed
+          resources:
+            requests:
+              storage: 30Gi
+  instancetype:
+    name: cx1.large
+  preference:
+    name: fedora
   template:
     metadata:
       labels:
         app: webinar-vm
+        network.kubevirt.io/headlessService: headless
     spec:
       domain:
-        cpu:
-          cores: 1
-        resources:
-          requests:
-            memory: 2Gi
         devices:
-          autoattachPodInterface: true
+          autoattachPodInterface: false
           disks:
-            - name: cloudinitdisk
-              disk:
-                bus: virtio
             - name: rootdisk
               disk:
                 bus: virtio
+              bootOrder: 1
+            - name: cloudinitdisk
+              cdrom:
+                bus: sata
+              bootOrder: 2
           interfaces:
             - name: default
               masquerade: {}
+            - name: nic204                 # ← ENTFERNEN, falls NAD nicht existiert
+              model: virtio
+              state: up
+              bridge: {}
       networks:
         - name: default
           pod: {}
-      # Simple health checks against the in-guest web server
+        - name: nic204                     # ← ENTFERNEN, falls NAD nicht existiert
+          multus:
+            networkName: default/nad204
+      subdomain: headless
+      # Healthchecks gegen den in-guest Webserver
       readinessProbe:
         httpGet:
           path: /
@@ -70,9 +82,10 @@ spec:
           cloudInitNoCloud:
             userData: |
               #cloud-config
-              chpasswd: { expire: false }
+              chpasswd:
+                expire: false
               user: artzoul
-              password: redhat123   # rotate later
+              password: redhat123
               write_files:
                 - path: /opt/hello/index.html
                   permissions: '0644'
@@ -92,12 +105,10 @@ spec:
                     Description=Simple Hello Web (python http.server)
                     After=network-online.target
                     Wants=network-online.target
-
                     [Service]
                     WorkingDirectory=/opt/hello
                     ExecStart=/usr/bin/python3 -m http.server 80
                     Restart=always
-
                     [Install]
                     WantedBy=multi-user.target
               runcmd:
