@@ -29,7 +29,7 @@ spec:
           requests:
             memory: 2Gi
         devices:
-          autoattachPodInterface: false
+          autoattachPodInterface: true
           disks:
             - name: cloudinitdisk
               disk:
