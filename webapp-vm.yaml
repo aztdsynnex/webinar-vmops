@@ -71,8 +71,8 @@ spec:
             userData: |
               #cloud-config
               chpasswd: { expire: false }
-              user: cloud-user
-              password: "changeme123!"   # rotate later
+              user: artzoul
+              password: redhat123   # rotate later
               write_files:
                 - path: /opt/hello/index.html
                   permissions: '0644'
