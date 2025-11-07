@@ -65,7 +65,7 @@ spec:
       volumes:
         - name: rootdisk
           dataVolume:
-            name: vm-hello-web-1-volume
+            name: webinar-vm-volume
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |
