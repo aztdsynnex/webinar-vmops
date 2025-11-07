@@ -1,7 +1,7 @@
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: vm-hello-web-1
+  name: webinar-vm
   namespace: webinar-vmops
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -9,7 +9,7 @@ spec:
   running: true
   dataVolumeTemplates:
     - metadata:
-        name: vm-hello-web-1-volume
+        name: webinar-vm-volume
       spec:
         sourceRef:
           kind: DataSource
@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       labels:
-        app: hello-vm-web
+        app: webinar-vm
     spec:
       domain:
         cpu:
