@@ -78,7 +78,7 @@ Open the URL in your browser.
 You should see:
 
 ```
-Hello from a VM on OpenShift 👋
+Hello from a VM on TDSYnnex OpenShift Virtualiaztion Cluster! ^^
 ```
 
 ---
