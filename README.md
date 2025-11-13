@@ -3,7 +3,7 @@
 This repository demonstrates deploying a **Virtual Machine–based web server** on **OpenShift** using **GitOps** principles.
 It shows how infrastructure as code can define, deploy, and manage virtualized workloads through OpenShift Virtualization and OpenShift GitOps (Argo CD).
 
-The example provisions a **Fedora VM** running a simple Python-based web server that serves a “Hello from a VM on OpenShift 👋” page.
+The example provisions a **Fedora VM** running a simple Python-based web server that serves a “This VM on OpenShift is alive, serving content, and doing its best… which is more than I can say for most humans before coffee. 🧪🛰️☕” page.
 This highlights how Git-driven workflows can manage virtual machines just like containerized workloads.
 
 > ⚠️ **Disclaimer – Not for Production Use**

@@ -68,7 +68,7 @@ spec:
                     <html>
                       <head><meta charset="utf-8"><title>Hello</title></head>
                       <body style="font-family: system-ui, sans-serif; margin: 3rem;">
-                        <h1>Hello from a VM on OpenShift 👋</h1>
+                        <h1>This VM on OpenShift is alive, serving content, and doing its best… which is more than I can say for most humans before coffee. 🧪🛰️☕</h1>
                         <p>VS Code → GitHub → Argo CD → OpenShift</p>
                       </body>
                     </html>
