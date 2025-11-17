@@ -23,7 +23,7 @@ spec:
         kubevirt.io/size: small
     spec:
       domain:
-        cpu: 2
+          cpu: 2
           sockets: 2
           threads: 2
         memory:
