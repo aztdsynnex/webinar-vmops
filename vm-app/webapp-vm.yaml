@@ -28,7 +28,7 @@ spec:
           sockets: 2
           threads: 2
         memory:
-          guest: 3Gi
+          guest: 4Gi
         devices:
           disks:
             - name: rootdisk
