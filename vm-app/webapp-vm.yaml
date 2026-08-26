@@ -18,8 +18,9 @@ spec:
         vm.kubevirt.io/os: fedora
         vm.kubevirt.io/workload: server
       labels:
-        app: webinar-vm
-        kubevirt.io/domain: webinar-vm
+        app: vm-ops
+        os.template.kubevirt.io/fedora: 'true'
+        kubevirt.io/domain: fedora-web
         kubevirt.io/size: small
     spec:
       domain:
