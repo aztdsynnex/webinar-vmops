@@ -1,13 +1,13 @@
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: webinar-vm
-  namespace: webinar-vmops
+  name: fedora-web
+  namespace: vm-ops
   annotations:
     description: Fedora Hello-World Demo VM
     argocd.argoproj.io/sync-wave: "1"
   labels:
-    app: webinar-vm
+    app: vm-ops
     os.template.kubevirt.io/fedora: 'true'
 spec:
   runStrategy: Always

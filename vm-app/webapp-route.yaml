@@ -1,8 +1,8 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: webapp-route
-  namespace: webinar-vmops
+  name: vm-ops-route
+  namespace: vm-ops
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:

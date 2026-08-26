@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: webapp-service
-  namespace: webinar-vmops
+  name: vm-ops-svc
+  namespace: vm-ops
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   selector:
-    app: webinar-vm
+    app: vm-ops
   ports:
     - name: http
       protocol: TCP
