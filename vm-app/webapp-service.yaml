@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   selector:
-    app: vm-ops
+    kubevirt.io/domain: fedora-web
   ports:
     - name: http
       protocol: TCP
