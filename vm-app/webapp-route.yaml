@@ -8,7 +8,7 @@ metadata:
 spec:
   to:
     kind: Service
-    name: webapp-service
+    name: vm-ops-svc
     weight: 100
   port:
     targetPort: http
